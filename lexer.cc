@@ -13,7 +13,7 @@ static int get_token() {
     while (isspace(last_char))
         last_char = getchar();
 
-    if (isalpha(last_char)) { // identifier: [a-zA-Z][a-zA-Z0-9]*
+    if (isalpha(last_char)) {
         identifier_str = last_char;
         while (isalnum(last_char = getchar()))
             identifier_str += last_char;
@@ -25,7 +25,7 @@ static int get_token() {
         return kTokenIdentifier;
     }
 
-    if (isdigit(last_char) || last_char == '.') { // number: [0-9.]+
+    if (isdigit(last_char) || last_char == '.') {
         std::string num_str;
         do {
             num_str += last_char;

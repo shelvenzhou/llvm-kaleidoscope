@@ -3,6 +3,14 @@
 
 #include <string>
 
+/*
+Token of Kaleidoscope
+
+    identifier: [a-zA-Z][a-zA-Z0-9]*
+
+    number: [0-9.]+
+*/
+
 namespace lexer {
 
 enum Token {
