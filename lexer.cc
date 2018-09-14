@@ -5,7 +5,6 @@
 
 #include <string>
 
-namespace kaleidoscope {
 namespace lexer {
 
 static int get_token() {
@@ -56,4 +55,3 @@ static int get_token() {
 }
 
 } // namespace lexer
-} // namespace kaleidoscope

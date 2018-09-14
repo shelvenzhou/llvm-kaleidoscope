@@ -3,7 +3,6 @@
 
 #include <string>
 
-namespace kaleidoscope {
 namespace lexer {
 
 enum Token {
@@ -22,6 +21,5 @@ static double num_val;
 static int get_token();
 
 } // namespace lexer
-} // namespace kaleidoscope
 
 #endif // LLVM_KALEIDOSCOPE_LEXER_H_

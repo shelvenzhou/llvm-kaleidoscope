@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 
-namespace kaleidoscope {
 namespace ast {
 
 class ExprAST {
@@ -69,6 +68,5 @@ public:
 };
 
 } // namespace ast
-} // namespace kaleidoscope
 
 #endif // LLVM_KALEIDOSCOPE_AST_H_
