@@ -41,7 +41,7 @@ std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
     if (current_token != ')') {
         while (true) {
             if (auto arg = parse_expression())
-                args.push_back(arg);
+                args.push_back(std::move(arg));
             else
                 return nullptr;
 
@@ -139,7 +139,7 @@ std::unique_ptr<ast::FunctionAST> parse_definition() {
         return nullptr;
 
     if (auto expression = parse_expression())
-        return llvm::make_unique<ast::FunctionAST>(prototype, expression);
+        return llvm::make_unique<ast::FunctionAST>(std::move(prototype), std::move(expression));
 
     return nullptr;
 }
@@ -149,7 +149,7 @@ std::unique_ptr<ast::PrototypeAST> parse_external() {
     return parse_prototype();
 }
 
-std::unique_ptr<ast::ExprAST> parse_top_level_expr() {
+std::unique_ptr<ast::FunctionAST> parse_top_level_expr() {
     if (auto expression = parse_expression()) {
         auto prototype = llvm::make_unique<ast::PrototypeAST>("", std::vector<std::string>());
         return llvm::make_unique<ast::FunctionAST>(std::move(prototype), std::move(expression));

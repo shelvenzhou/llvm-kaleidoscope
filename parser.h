@@ -70,7 +70,7 @@ std::unique_ptr<ast::ExprAST> parse_expression();
 std::unique_ptr<ast::PrototypeAST> parse_prototype();
 std::unique_ptr<ast::FunctionAST> parse_definition();
 std::unique_ptr<ast::PrototypeAST> parse_external();
-std::unique_ptr<ast::ExprAST> parse_top_level_expr();
+std::unique_ptr<ast::FunctionAST> parse_top_level_expr();
 
 } // namespace parser
 
