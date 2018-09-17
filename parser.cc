@@ -9,35 +9,35 @@
 
 namespace parser {
 
-static std::unique_ptr<ExprAST> parse_number_expr() {
-    auto result = llvm::make_unique<NumberExprAst>(num_val);
+static std::unique_ptr<ast::ExprAST> parse_number_expr() {
+    auto result = llvm::make_unique<ast::NumberExprAst>(lexer::num_val);
     get_next_token();
     return std::move(result);
 }
 
-static std::unique_ptr<ExprAST> parse_paren_expr() {
+static std::unique_ptr<ast::ExprAST> parse_paren_expr() {
     get_next_token(); // eat '('
     auto expr = parse_expression();
     if (!expr)
         return nullptr;
 
     if (current_token != ')')
-        return log_error("expected ')'");
+        return parser_log::log_error("expected ')'");
     get_next_token();
     return expr;
 }
 
-static std::unique_ptr<ExprAST> parse_identifier_expr() {
-    std::string identifier = identifier_str;
+static std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
+    std::string identifier = lexer::identifier_str;
 
     get_next_token();
 
     if (current_token != ')')
-        return llvm::make_unique<VariableExprAST>(identifier);
+        return llvm::make_unique<ast::VariableExprAST>(identifier);
 
     // function call
     get_next_token();
-    std::vector<std::unique_ptr<ExprAST>> args;
+    std::vector<std::unique_ptr<ast::ExprAST>> args;
     if (current_token != ')') {
         while (true) {
             if (auto arg = parse_expression())
@@ -49,30 +49,30 @@ static std::unique_ptr<ExprAST> parse_identifier_expr() {
                 break;
 
             if (current_token != ',')
-                return log_error("expected ',' or ')' in argument list");
+                return parser_log::log_error("expected ',' or ')' in argument list");
             get_next_token();
         }
     }
 
     get_next_token();
-    return llvm::make_unique<CallExprAST>(identifier, std::move(args));
+    return llvm::make_unique<ast::CallExprAST>(identifier, std::move(args));
 }
 
-static std::unique_ptr<ExprAST> parse_primary() {
+static std::unique_ptr<ast::ExprAST> parse_primary() {
     switch (current_token) {
-        case kTokenIdentifier:
+        case lexer::kTokenIdentifier:
             return parse_identifier_expr();
-        case kTokenNumber:
+        case lexer::kTokenNumber:
             return parse_number_expr();
         case '(':
             return parse_paren_expr();
         default:
-            return log_error("unknown token when expecting an expression");
+            return parser_log::log_error("unknown token when expecting an expression");
     }
 }
 
 
-static std::unique_ptr<ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ExprAST> lhs) {
+static std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs) {
     while (true) {
         int token_precedence = get_token_precedence();
 
@@ -97,11 +97,11 @@ static std::unique_ptr<ExprAST> parse_binary_operation_rhs(int expr_precedence, 
                 return nullptr;
         }
 
-        lhs = llvm::make_unique<BinaryExprAST>(binary_operator, std::move(lhs), std::move(rhs));
+        lhs = llvm::make_unique<ast::BinaryExprAST>(binary_operator, std::move(lhs), std::move(rhs));
     }
 }
 
-static std::unique_ptr<ExprAST> parse_expression() {
+static std::unique_ptr<ast::ExprAST> parse_expression() {
     auto lhs = parse_primary();
     if (!lhs)
         return nullptr;
@@ -110,28 +110,28 @@ static std::unique_ptr<ExprAST> parse_expression() {
 }
 
 
-static std::unique_ptr<PrototypeAST> parse_prototype() {
-    if (current_token != kTokenIdentifier)
-        log_error_prototype("expected function name in prototype");
+static std::unique_ptr<ast::PrototypeAST> parse_prototype() {
+    if (current_token != lexer::kTokenIdentifier)
+        parser_log::log_error_prototype("expected function name in prototype");
 
-    std::string function_name = identifier_str;
+    std::string function_name = lexer::identifier_str;
     get_next_token();
 
     if (current_token != '(')
-        return log_error_prototype("expected '(' in prototype");
+        return parser_log::log_error_prototype("expected '(' in prototype");
 
     std::vector<std::string> arg_names;
-    while(get_next_token() == kTokenIdentifier)
-        arg_names.push_back(identifier_str);
+    while(get_next_token() == lexer::kTokenIdentifier)
+        arg_names.push_back(lexer::identifier_str);
     if (current_token != ')')
-        return log_error_prototype("expected ')' in prototype");
+        return parser_log::log_error_prototype("expected ')' in prototype");
 
     get_next_token();
 
-    return llvm::make_unique<PrototypeAST>(function_name, std::move(arg_names));
+    return llvm::make_unique<ast::PrototypeAST>(function_name, std::move(arg_names));
 }
 
-static std::unique_ptr<FunctionAST> parse_definition() {
+static std::unique_ptr<ast::FunctionAST> parse_definition() {
     get_next_token();
 
     auto prototype = parse_prototype();
@@ -139,20 +139,20 @@ static std::unique_ptr<FunctionAST> parse_definition() {
         return nullptr;
 
     if (auto expression = parse_expression())
-        return llvm::make_unique<FunctionAST>(prototype, expression);
+        return llvm::make_unique<ast::FunctionAST>(prototype, expression);
 
     return nullptr;
 }
 
-static std::unique_ptr<PrototypeAST> parse_external() {
+static std::unique_ptr<ast::PrototypeAST> parse_external() {
     get_next_token();
     return parse_prototype();
 }
 
-static std::unique_ptr<ExprAST> parse_top_level_expr() {
+static std::unique_ptr<ast::ExprAST> parse_top_level_expr() {
     if (auto expression = parse_expression()) {
-        auto prototype = llvm::make_unique<PrototypeAST>("", std::vector<std::string>());
-        return llvm::make_unique<FunctionAST>(std::move(prototype), std::move(expression));
+        auto prototype = llvm::make_unique<ast::PrototypeAST>("", std::vector<std::string>());
+        return llvm::make_unique<ast::FunctionAST>(std::move(prototype), std::move(expression));
     }
     return nullptr;
 }

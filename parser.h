@@ -42,7 +42,7 @@ namespace parser {
 
 static int current_token;
 static int get_next_token() {
-    return current_token = get_token();
+    return current_token = lexer::get_token();
 }
 
 static std::map<char, int> binary_operator_precedence = {
@@ -61,16 +61,16 @@ static int get_token_precedence() {
     return token_precedence;
 }
 
-static std::unique_ptr<ExprAST> parse_number_expr();
-static std::unique_ptr<ExprAST> parse_paren_expr();
-static std::unique_ptr<ExprAST> parse_identifier_expr();
-static std::unique_ptr<ExprAST> parse_primary();
-static std::unique_ptr<ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ExprAST> lhs);
-static std::unique_ptr<ExprAST> parse_expression();
-static std::unique_ptr<PrototypeAST> parse_prototype();
-static std::unique_ptr<FunctionAST> parse_definition();
-static std::unique_ptr<PrototypeAST> parse_external();
-static std::unique_ptr<ExprAST> parse_top_level_expr();
+static std::unique_ptr<ast::ExprAST> parse_number_expr();
+static std::unique_ptr<ast::ExprAST> parse_paren_expr();
+static std::unique_ptr<ast::ExprAST> parse_identifier_expr();
+static std::unique_ptr<ast::ExprAST> parse_primary();
+static std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs);
+static std::unique_ptr<ast::ExprAST> parse_expression();
+static std::unique_ptr<ast::PrototypeAST> parse_prototype();
+static std::unique_ptr<ast::FunctionAST> parse_definition();
+static std::unique_ptr<ast::PrototypeAST> parse_external();
+static std::unique_ptr<ast::ExprAST> parse_top_level_expr();
 
 } // namespace parser
 

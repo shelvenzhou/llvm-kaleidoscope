@@ -15,16 +15,16 @@ static void handle_top_level_expression();
 static void main_loop() {
     while (true) {
         fprintf(stderr, "ready> ");
-        switch(current_token) {
-            case kTokenEof:
+        switch(parser::current_token) {
+            case lexer::kTokenEof:
                 return;
             case ';':
-                get_next_token();
+                parser::get_next_token();
                 break;
-            case kTokenDef:
+            case lexer::kTokenDef:
                 handle_definition();
                 break;
-            case kTokenExtern:
+            case lexer::kTokenExtern:
                 handle_extern();
                 break;
             default:

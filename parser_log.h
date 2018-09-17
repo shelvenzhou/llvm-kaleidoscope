@@ -7,14 +7,14 @@
 
 #include <memory>
 
-namespace log {
+namespace parser_log {
 
-std::unique_ptr<ExprAST> log_error(const char *error) {
+std::unique_ptr<ast::ExprAST> log_error(const char *error) {
     fprintf(stderr, "Error: %s\n", error);
     return nullptr;
 }
 
-std::unique_ptr<PrototypeAST> log_error_prototype(const char *error) {
+std::unique_ptr<ast::PrototypeAST> log_error_prototype(const char *error) {
     fprintf(stderr, "Error: %s\n", error);
     return nullptr;
 }

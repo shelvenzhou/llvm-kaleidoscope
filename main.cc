@@ -5,9 +5,9 @@
 
 int main() {
     fprintf(stderr, "ready> ");
-    get_next_token();
+    parser::get_next_token();
 
-    main_loop();
+    driver::main_loop();
 
     return 0;
 }
