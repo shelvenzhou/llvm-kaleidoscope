@@ -36,15 +36,10 @@ Grammar of Kaleidoscope
 
 namespace parser {
 
-static int current_token;
+extern int current_token;
 int get_next_token();
 
-static std::map<char, int> binary_operator_precedence = {
-    { '<', 10 },
-    { '+', 20 },
-    { '-', 20 },
-    { '*', 40 },
-};
+extern std::map<char, int> binary_operator_precedence;
 int get_token_precedence();
 
 std::unique_ptr<ast::ExprAST> parse_number_expr();

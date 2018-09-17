@@ -12,10 +12,17 @@
 
 namespace parser {
 
+int current_token;
 int get_next_token() {
     return current_token = lexer::get_token();
 }
 
+std::map<char, int> binary_operator_precedence = {
+    { '<', 10 },
+    { '+', 20 },
+    { '-', 20 },
+    { '*', 40 },
+};
 int get_token_precedence() {
     if (!isascii(current_token))
         return -1;

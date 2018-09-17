@@ -7,6 +7,9 @@
 
 namespace lexer {
 
+std::string identifier_str;
+double num_val;
+
 int get_token() {
     static int last_char = ' ';
 
