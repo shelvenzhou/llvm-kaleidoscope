@@ -110,9 +110,51 @@ static std::unique_ptr<ExprAST> parse_expression() {
 }
 
 
-static std::unique_ptr<PrototypeAST> parse_prototype();
-static std::unique_ptr<FunctionAST> parse_definition();
-static std::unique_ptr<PrototypeAST> parse_external();
-static std::unique_ptr<ExprAST> parse_top_level_expr();
+static std::unique_ptr<PrototypeAST> parse_prototype() {
+    if (current_token != kTokenIdentifier)
+        log_error_prototype("expected function name in prototype");
+
+    std::string function_name = identifier_str;
+    get_next_token();
+
+    if (current_token != '(')
+        return log_error_prototype("expected '(' in prototype");
+
+    std::vector<std::string> arg_names;
+    while(get_next_token() == kTokenIdentifier)
+        arg_names.push_back(identifier_str);
+    if (current_token != ')')
+        return log_error_prototype("expected ')' in prototype");
+
+    get_next_token();
+
+    return llvm::make_unique<PrototypeAST>(function_name, std::move(arg_names));
+}
+
+static std::unique_ptr<FunctionAST> parse_definition() {
+    get_next_token();
+
+    auto prototype = parse_prototype();
+    if (!prototype)
+        return nullptr;
+
+    if (auto expression = parse_expression())
+        return llvm::make_unique<FunctionAST>(prototype, expression);
+
+    return nullptr;
+}
+
+static std::unique_ptr<PrototypeAST> parse_external() {
+    get_next_token();
+    return parse_prototype();
+}
+
+static std::unique_ptr<ExprAST> parse_top_level_expr() {
+    if (auto expression = parse_expression()) {
+        auto prototype = llvm::make_unique<PrototypeAST>("", std::vector<std::string>());
+        return llvm::make_unique<FunctionAST>(std::move(prototype), std::move(expression));
+    }
+    return nullptr;
+}
 
 } // namespace parser
