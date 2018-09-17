@@ -1,5 +1,6 @@
 #include "driver.h"
 #include "parser.h"
+#include "lexer.h"
 
 #include <stdio.h>
 
@@ -24,6 +25,28 @@ void handle_top_level_expression() {
         fprintf(stderr, "Parsed a top-level expression.\n");
     else
         parser::get_next_token();
+}
+
+void main_loop() {
+    while (true) {
+        fprintf(stderr, "ready> ");
+        switch(parser::current_token) {
+            case lexer::kTokenEof:
+                return;
+            case ';':
+                parser::get_next_token();
+                break;
+            case lexer::kTokenDef:
+                handle_definition();
+                break;
+            case lexer::kTokenExtern:
+                handle_extern();
+                break;
+            default:
+                handle_top_level_expression();
+                break;
+        }
+    }
 }
 
 } // namespace driver

@@ -3,11 +3,28 @@
 #include "parser.h"
 #include "parser_log.h"
 
+#include <ctype.h>
+
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace parser {
+
+int get_next_token() {
+    return current_token = lexer::get_token();
+}
+
+int get_token_precedence() {
+    if (!isascii(current_token))
+        return -1;
+
+    int token_precedence = binary_operator_precedence[current_token];
+    if (token_precedence <= 0)
+        return -1;
+    return token_precedence;
+}
 
 std::unique_ptr<ast::ExprAST> parse_number_expr() {
     auto result = llvm::make_unique<ast::NumberExprAst>(lexer::num_val);
