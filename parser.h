@@ -41,7 +41,7 @@ Grammar of Kaleidoscope
 namespace parser {
 
 static int current_token;
-static int get_next_token() {
+int get_next_token() {
     return current_token = lexer::get_token();
 }
 
@@ -51,7 +51,7 @@ static std::map<char, int> binary_operator_precedence = {
     { '-', 20 },
     { '*', 40 },
 };
-static int get_token_precedence() {
+int get_token_precedence() {
     if (!isascii(current_token))
         return -1;
 
@@ -61,16 +61,16 @@ static int get_token_precedence() {
     return token_precedence;
 }
 
-static std::unique_ptr<ast::ExprAST> parse_number_expr();
-static std::unique_ptr<ast::ExprAST> parse_paren_expr();
-static std::unique_ptr<ast::ExprAST> parse_identifier_expr();
-static std::unique_ptr<ast::ExprAST> parse_primary();
-static std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs);
-static std::unique_ptr<ast::ExprAST> parse_expression();
-static std::unique_ptr<ast::PrototypeAST> parse_prototype();
-static std::unique_ptr<ast::FunctionAST> parse_definition();
-static std::unique_ptr<ast::PrototypeAST> parse_external();
-static std::unique_ptr<ast::ExprAST> parse_top_level_expr();
+std::unique_ptr<ast::ExprAST> parse_number_expr();
+std::unique_ptr<ast::ExprAST> parse_paren_expr();
+std::unique_ptr<ast::ExprAST> parse_identifier_expr();
+std::unique_ptr<ast::ExprAST> parse_primary();
+std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs);
+std::unique_ptr<ast::ExprAST> parse_expression();
+std::unique_ptr<ast::PrototypeAST> parse_prototype();
+std::unique_ptr<ast::FunctionAST> parse_definition();
+std::unique_ptr<ast::PrototypeAST> parse_external();
+std::unique_ptr<ast::ExprAST> parse_top_level_expr();
 
 } // namespace parser
 

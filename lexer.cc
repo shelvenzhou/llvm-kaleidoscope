@@ -7,7 +7,7 @@
 
 namespace lexer {
 
-static int get_token() {
+int get_token() {
     static int last_char = ' ';
 
     while (isspace(last_char))

@@ -8,11 +8,11 @@
 
 namespace driver {
 
-static void handle_definition();
-static void handle_extern();
-static void handle_top_level_expression();
+void handle_definition();
+void handle_extern();
+void handle_top_level_expression();
 
-static void main_loop() {
+void main_loop() {
     while (true) {
         fprintf(stderr, "ready> ");
         switch(parser::current_token) {

@@ -9,13 +9,13 @@
 
 namespace parser {
 
-static std::unique_ptr<ast::ExprAST> parse_number_expr() {
+std::unique_ptr<ast::ExprAST> parse_number_expr() {
     auto result = llvm::make_unique<ast::NumberExprAst>(lexer::num_val);
     get_next_token();
     return std::move(result);
 }
 
-static std::unique_ptr<ast::ExprAST> parse_paren_expr() {
+std::unique_ptr<ast::ExprAST> parse_paren_expr() {
     get_next_token(); // eat '('
     auto expr = parse_expression();
     if (!expr)
@@ -27,7 +27,7 @@ static std::unique_ptr<ast::ExprAST> parse_paren_expr() {
     return expr;
 }
 
-static std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
+std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
     std::string identifier = lexer::identifier_str;
 
     get_next_token();
@@ -58,7 +58,7 @@ static std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
     return llvm::make_unique<ast::CallExprAST>(identifier, std::move(args));
 }
 
-static std::unique_ptr<ast::ExprAST> parse_primary() {
+std::unique_ptr<ast::ExprAST> parse_primary() {
     switch (current_token) {
         case lexer::kTokenIdentifier:
             return parse_identifier_expr();
@@ -72,7 +72,7 @@ static std::unique_ptr<ast::ExprAST> parse_primary() {
 }
 
 
-static std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs) {
+std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precedence, std::unique_ptr<ast::ExprAST> lhs) {
     while (true) {
         int token_precedence = get_token_precedence();
 
@@ -101,7 +101,7 @@ static std::unique_ptr<ast::ExprAST> parse_binary_operation_rhs(int expr_precede
     }
 }
 
-static std::unique_ptr<ast::ExprAST> parse_expression() {
+std::unique_ptr<ast::ExprAST> parse_expression() {
     auto lhs = parse_primary();
     if (!lhs)
         return nullptr;
@@ -110,7 +110,7 @@ static std::unique_ptr<ast::ExprAST> parse_expression() {
 }
 
 
-static std::unique_ptr<ast::PrototypeAST> parse_prototype() {
+std::unique_ptr<ast::PrototypeAST> parse_prototype() {
     if (current_token != lexer::kTokenIdentifier)
         parser_log::log_error_prototype("expected function name in prototype");
 
@@ -131,7 +131,7 @@ static std::unique_ptr<ast::PrototypeAST> parse_prototype() {
     return llvm::make_unique<ast::PrototypeAST>(function_name, std::move(arg_names));
 }
 
-static std::unique_ptr<ast::FunctionAST> parse_definition() {
+std::unique_ptr<ast::FunctionAST> parse_definition() {
     get_next_token();
 
     auto prototype = parse_prototype();
@@ -144,12 +144,12 @@ static std::unique_ptr<ast::FunctionAST> parse_definition() {
     return nullptr;
 }
 
-static std::unique_ptr<ast::PrototypeAST> parse_external() {
+std::unique_ptr<ast::PrototypeAST> parse_external() {
     get_next_token();
     return parse_prototype();
 }
 
-static std::unique_ptr<ast::ExprAST> parse_top_level_expr() {
+std::unique_ptr<ast::ExprAST> parse_top_level_expr() {
     if (auto expression = parse_expression()) {
         auto prototype = llvm::make_unique<ast::PrototypeAST>("", std::vector<std::string>());
         return llvm::make_unique<ast::FunctionAST>(std::move(prototype), std::move(expression));

@@ -26,7 +26,7 @@ enum Token {
 static std::string identifier_str;
 static double num_val;
 
-static int get_token();
+int get_token();
 
 } // namespace lexer
 
