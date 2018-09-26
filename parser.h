@@ -5,8 +5,6 @@
 
 #include <map>
 
-#include "llvm/ADT/STLExtras.h"
-
 /*
 Grammar of Kaleidoscope
 

@@ -30,7 +30,7 @@ void handle_top_level_expression() {
 void main_loop() {
     while (true) {
         fprintf(stderr, "ready> ");
-        switch(parser::current_token) {
+        switch (parser::current_token) {
             case lexer::kTokenEof:
                 return;
             case ';':

@@ -10,6 +10,8 @@
 #include <vector>
 #include <map>
 
+#include "llvm/ADT/STLExtras.h"
+
 namespace parser {
 
 int current_token;
