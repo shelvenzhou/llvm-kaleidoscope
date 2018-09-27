@@ -22,8 +22,8 @@ namespace ast {
 
 llvm::LLVMContext llvm_context;
 llvm::IRBuilder<> ir_builder(llvm_context);
-llvm::Module module("module", llvm_context);
-std::map<std::string, llvm::Value *> name_values;
+std::unique_ptr<llvm::Module> module;
+static std::map<std::string, llvm::Value *> name_values;
 
 
 llvm::Value *NumberExprAst::codegen() {
@@ -60,7 +60,7 @@ llvm::Value *BinaryExprAST::codegen() {
 }
 
 llvm::Value *CallExprAST::codegen() {
-    llvm::Function *callee = module.getFunction(callee_);
+    llvm::Function *callee = module->getFunction(callee_);
     if (!callee)
         parser_log::log_error_value("unknown function referenced");
 
@@ -81,7 +81,7 @@ llvm::Function *PrototypeAST::codegen() {
     std::vector<llvm::Type *> arg_types(args_.size(), llvm::Type::getDoubleTy(llvm_context));
     llvm::FunctionType *function_type = llvm::FunctionType::get(llvm::Type::getDoubleTy(llvm_context), arg_types, false);
 
-    llvm::Function *function = llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name_, &module);
+    llvm::Function *function = llvm::Function::Create(function_type, llvm::Function::ExternalLinkage, name_, module.get());
 
     unsigned i = 0;
     for (auto& arg : function->args())
@@ -91,7 +91,7 @@ llvm::Function *PrototypeAST::codegen() {
 }
 
 llvm::Function *FunctionAST::codegen() {
-    llvm::Function *function = module.getFunction(proto_->name());
+    llvm::Function *function = module->getFunction(proto_->name());
 
     if (!function)
         function = proto_->codegen();

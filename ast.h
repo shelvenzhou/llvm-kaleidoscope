@@ -6,8 +6,13 @@
 #include <vector>
 
 #include "llvm/IR/Value.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 
 namespace ast {
+
+extern llvm::LLVMContext llvm_context;
+extern std::unique_ptr<llvm::Module> module;
 
 class ExprAST {
 public:

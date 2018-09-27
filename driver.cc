@@ -4,27 +4,44 @@
 
 #include <stdio.h>
 
+#include "llvm/Support/raw_ostream.h"
+
 namespace driver {
 
 void handle_definition() {
-    if (parser::parse_definition())
-        fprintf(stderr, "Parsed a function definition.\n");
-    else
+    if (auto definition_ast = parser::parse_definition()) {
+        if (auto *definition_ir = definition_ast->codegen()) {
+            fprintf(stderr, "Read function definition:");
+            definition_ir->print(llvm::errs());
+            fprintf(stderr, "\n");
+        }
+    } else {
         parser::get_next_token();
+    }
 }
 
 void handle_extern() {
-    if (parser::parse_external())
-        fprintf(stderr, "Parsed an extern.\n");
-    else
+    if (auto external_ast = parser::parse_external()) {
+        if (auto *external_ir = external_ast->codegen()) {
+            fprintf(stderr, "Read extern:");
+            external_ir->print(llvm::errs());
+            fprintf(stderr, "\n");
+        }
+    } else {
         parser::get_next_token();
+    }
 }
 
 void handle_top_level_expression() {
-    if (parser::parse_top_level_expr())
-        fprintf(stderr, "Parsed a top-level expression.\n");
-    else
+    if (auto expr_ast = parser::parse_top_level_expr()) {
+        if (auto *expr_ir = expr_ast->codegen()) {
+            fprintf(stderr, "Read top-level expression:");
+            expr_ir->print(llvm::errs());
+            fprintf(stderr, "\n");
+        }
+    } else {
         parser::get_next_token();
+    }
 }
 
 void main_loop() {
