@@ -4,18 +4,15 @@
 
 #include <stdio.h>
 
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/ADT/STLExtras.h"
-
 int main() {
     fprintf(stderr, "ready> ");
     parser::get_next_token();
 
-    ast::module = llvm::make_unique<llvm::Module>("module", ast::llvm_context);
+    ast::initialize_module_and_pass_manager();
 
     driver::main_loop();
 
-    ast::module->print(llvm::errs(), nullptr);
+    ast::print_generated_code();
 
     return 0;
 }

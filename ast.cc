@@ -17,14 +17,39 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
 
 namespace ast {
 
 llvm::LLVMContext llvm_context;
 llvm::IRBuilder<> ir_builder(llvm_context);
 std::unique_ptr<llvm::Module> module;
-static std::map<std::string, llvm::Value *> name_values;
+std::unique_ptr<llvm::legacy::FunctionPassManager> function_pass_manager;
+std::map<std::string, llvm::Value *> name_values;
 
+void initialize_module_and_pass_manager() {
+    module = llvm::make_unique<llvm::Module>("module", llvm_context);
+
+    function_pass_manager = llvm::make_unique<llvm::legacy::FunctionPassManager>(module.get());
+
+    // do simple "peephole" optimizations and bit-twiddling optzns
+    function_pass_manager->add(llvm::createInstructionCombiningPass());
+    // reassociate expressions
+    function_pass_manager->add(llvm::createReassociatePass());
+    // eliminate common sub-expressions
+    function_pass_manager->add(llvm::createGVNPass());
+    // simplify the control flow graph (deleting unreachable blocks, etc)
+    function_pass_manager->add(llvm::createCFGSimplificationPass());
+
+    function_pass_manager->doInitialization();
+}
+
+void print_generated_code() {
+    module->print(llvm::errs(), nullptr);
+}
 
 llvm::Value *NumberExprAst::codegen() {
     return llvm::ConstantFP::get(llvm_context, llvm::APFloat(val_));
@@ -113,6 +138,8 @@ llvm::Function *FunctionAST::codegen() {
         ir_builder.CreateRet(return_value);
 
         llvm::verifyFunction(*function);
+
+        function_pass_manager->run(*function);
 
         return function;
     }

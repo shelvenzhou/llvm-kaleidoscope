@@ -11,8 +11,8 @@
 
 namespace ast {
 
-extern llvm::LLVMContext llvm_context;
-extern std::unique_ptr<llvm::Module> module;
+void initialize_module_and_pass_manager();
+void print_generated_code();
 
 class ExprAST {
 public:
