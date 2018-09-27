@@ -58,7 +58,7 @@ std::unique_ptr<ast::ExprAST> parse_identifier_expr() {
 
     get_next_token();
 
-    if (current_token != ')')
+    if (current_token != '(')
         return llvm::make_unique<ast::VariableExprAST>(identifier);
 
     // function call
