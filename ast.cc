@@ -18,9 +18,11 @@
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/TargetSelect.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
+#include "KaleidoscopeJIT.h"
 
 namespace ast {
 
@@ -28,10 +30,20 @@ llvm::LLVMContext llvm_context;
 llvm::IRBuilder<> ir_builder(llvm_context);
 std::unique_ptr<llvm::Module> module;
 std::unique_ptr<llvm::legacy::FunctionPassManager> function_pass_manager;
+std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit_engine;
 std::map<std::string, llvm::Value *> name_values;
+
+void initialize_jit() {
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    jit_engine = llvm::make_unique<llvm::orc::KaleidoscopeJIT>();
+}
 
 void initialize_module_and_pass_manager() {
     module = llvm::make_unique<llvm::Module>("module", llvm_context);
+    module->setDataLayout(jit_engine->getTargetMachine().createDataLayout());
 
     function_pass_manager = llvm::make_unique<llvm::legacy::FunctionPassManager>(module.get());
 
@@ -58,7 +70,7 @@ llvm::Value *NumberExprAst::codegen() {
 llvm::Value *VariableExprAST::codegen() {
     llvm::Value *v = name_values[name_];
     if (!v)
-        parser_log::log_error_value("unknown variable name");
+        return parser_log::log_error_value("unknown variable name");
     return v;
 }
 
@@ -87,7 +99,7 @@ llvm::Value *BinaryExprAST::codegen() {
 llvm::Value *CallExprAST::codegen() {
     llvm::Function *callee = module->getFunction(callee_);
     if (!callee)
-        parser_log::log_error_value("unknown function referenced");
+        return parser_log::log_error_value("unknown function referenced");
 
     if (callee->arg_size() != args_.size())
         return parser_log::log_error_value("incorrect # arguments passed");

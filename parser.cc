@@ -138,7 +138,7 @@ std::unique_ptr<ast::ExprAST> parse_expression() {
 
 std::unique_ptr<ast::PrototypeAST> parse_prototype() {
     if (current_token != lexer::kTokenIdentifier)
-        parser_log::log_error_prototype("expected function name in prototype");
+        return parser_log::log_error_prototype("expected function name in prototype");
 
     std::string function_name = lexer::identifier_str;
     get_next_token();
@@ -177,7 +177,7 @@ std::unique_ptr<ast::PrototypeAST> parse_external() {
 
 std::unique_ptr<ast::FunctionAST> parse_top_level_expr() {
     if (auto expression = parse_expression()) {
-        auto prototype = llvm::make_unique<ast::PrototypeAST>("", std::vector<std::string>());
+        auto prototype = llvm::make_unique<ast::PrototypeAST>("__anon_expr", std::vector<std::string>());
         return llvm::make_unique<ast::FunctionAST>(std::move(prototype), std::move(expression));
     }
     return nullptr;

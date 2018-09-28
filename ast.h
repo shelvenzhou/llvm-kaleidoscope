@@ -6,11 +6,15 @@
 #include <vector>
 
 #include "llvm/IR/Value.h"
-#include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include "KaleidoscopeJIT.h"
 
 namespace ast {
 
+extern std::unique_ptr<llvm::Module> module;
+extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit_engine;
+
+void initialize_jit();
 void initialize_module_and_pass_manager();
 void print_generated_code();
 

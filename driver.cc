@@ -1,10 +1,12 @@
 #include "driver.h"
 #include "parser.h"
 #include "lexer.h"
+#include "ast.h"
 
 #include <stdio.h>
 
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/Error.h"
 
 namespace driver {
 
@@ -35,9 +37,16 @@ void handle_extern() {
 void handle_top_level_expression() {
     if (auto expr_ast = parser::parse_top_level_expr()) {
         if (auto *expr_ir = expr_ast->codegen()) {
-            fprintf(stderr, "Read top-level expression:");
-            expr_ir->print(llvm::errs());
-            fprintf(stderr, "\n");
+            auto handler = ast::jit_engine->addModule(std::move(ast::module));
+            ast::initialize_module_and_pass_manager();
+
+            auto expr_symbol = ast::jit_engine->findSymbol("__anon_expr");
+            assert(expr_symbol && "Function not found");
+
+            double (*function_pointer)() = (double (*)())(intptr_t)llvm::cantFail(expr_symbol.getAddress());
+            fprintf(stderr, "Evaluated to %f\n", function_pointer());
+
+            ast::jit_engine->removeModule(handler);
         }
     } else {
         parser::get_next_token();
