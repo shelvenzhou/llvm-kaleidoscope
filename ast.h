@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Module.h"
@@ -78,7 +79,7 @@ public:
 
     const std::string &name() const { return name_; }
 
-    virtual llvm::Function *codegen();
+    llvm::Function *codegen();
 };
 
 // FunctionAST - This class represents a function definition itself.
@@ -90,8 +91,10 @@ public:
     FunctionAST(std::unique_ptr<PrototypeAST> proto, std::unique_ptr<ExprAST> body)
         : proto_(std::move(proto)), body_(std::move(body)) {}
 
-    virtual llvm::Function *codegen();
+    llvm::Function *codegen();
 };
+
+extern std::map<std::string, std::unique_ptr<ast::PrototypeAST>> function_protos;
 
 } // namespace ast
 

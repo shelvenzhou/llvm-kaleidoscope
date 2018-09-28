@@ -96,8 +96,20 @@ llvm::Value *BinaryExprAST::codegen() {
     }
 }
 
+std::map<std::string, std::unique_ptr<ast::PrototypeAST>> function_protos;
+llvm::Function *get_function(std::string name) {
+    if (auto *function = module->getFunction(name))
+        return function;
+
+    auto itr = function_protos.find(name);
+    if (itr != function_protos.end())
+        return itr->second->codegen();
+
+    return nullptr;
+}
+
 llvm::Value *CallExprAST::codegen() {
-    llvm::Function *callee = module->getFunction(callee_);
+    llvm::Function *callee = get_function(callee_);
     if (!callee)
         return parser_log::log_error_value("unknown function referenced");
 
@@ -128,11 +140,11 @@ llvm::Function *PrototypeAST::codegen() {
 }
 
 llvm::Function *FunctionAST::codegen() {
-    llvm::Function *function = module->getFunction(proto_->name());
+    auto &proto = *proto_;
 
-    if (!function)
-        function = proto_->codegen();
+    function_protos[proto_->name()] = std::move(proto_);
 
+    llvm::Function *function = get_function(proto.name());
     if (!function)
         return nullptr;
 

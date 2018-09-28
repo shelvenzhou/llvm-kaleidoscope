@@ -16,6 +16,9 @@ void handle_definition() {
             fprintf(stderr, "Read function definition:");
             definition_ir->print(llvm::errs());
             fprintf(stderr, "\n");
+
+            ast::jit_engine->addModule(std::move(ast::module));
+            ast::initialize_module_and_pass_manager();
         }
     } else {
         parser::get_next_token();
@@ -28,6 +31,8 @@ void handle_extern() {
             fprintf(stderr, "Read extern:");
             external_ir->print(llvm::errs());
             fprintf(stderr, "\n");
+
+            ast::function_protos[external_ast->name()] = std::move(external_ast);
         }
     } else {
         parser::get_next_token();
@@ -37,6 +42,10 @@ void handle_extern() {
 void handle_top_level_expression() {
     if (auto expr_ast = parser::parse_top_level_expr()) {
         if (auto *expr_ir = expr_ast->codegen()) {
+            fprintf(stderr, "Read top-level expression:");
+            expr_ir->print(llvm::errs());
+            fprintf(stderr, "\n");
+
             auto handler = ast::jit_engine->addModule(std::move(ast::module));
             ast::initialize_module_and_pass_manager();
 
